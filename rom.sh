@@ -68,7 +68,7 @@ then
 	post_msg "<code>Cloning Repo</code>"
 	git clone https://github.com/pixysos-devices/device_xiaomi_violet -b ten device/xiaomi/violet
 	git clone https://github.com/pixysos-devices/vendor_xiaomi_violet -b ten vendor/xiaomi/violet
-	git clone https://github.com/pixysos-devices/kernel_xiaomi_violet -b ten kernel/xiaomi/sm6150
+	git clone https://github.com/pixysos-devices/kernel_xiaomi_sm6150 -b ten kernel/xiaomi/sm6150 --depth=1
 fi
 
 if [ $SYNCSOURCE = 1 ] || [ $SYNCSOURCE = "y" ]
@@ -81,7 +81,11 @@ fi
 # GApps
 if [ $gapps = 1 ] || [ "$gapps" = "y" ]
 then
+	post_msg "<code>Building with Gapps</code>"
 	export BUILD_WITH_GAPPS=true
+else
+	post_msg "<code>Building Non gapps build</code>"
+	export BUILD_WITH_GAPPS=false
 fi
 
 # set ccache
