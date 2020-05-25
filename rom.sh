@@ -34,6 +34,7 @@ then
 	SYNCSOURCE=1
 	CCACHE=1
 	buildvariant=user
+	gapps=1
 elif [ "$config" = "n" ]
 then
 	echo Clean Build?[y/n]
@@ -42,7 +43,9 @@ then
 	read CLEANDEVICE
 	echo Sync Sources?[y/n]
 	read SYNCSOURCE
-	echo Use Cache?
+	echo Build With Gapps?[y/n]
+	read gapps
+	echo Use Cache?[y/n]
 	read CCACHE
 	echo Build Variant [user/userdebug/eng]
 	read buildvariant
@@ -73,6 +76,12 @@ then
 	post_msg "<code>ReSyncing Source</code>"
 	repo init -u https://github.com/PixysOS/manifest.git -b ten
 	repo sync -j$( nproc --all)
+fi
+
+# GApps
+if [ $gapps = 1 ] || [ "$gapps" = "y" ]
+then
+	export BUILD_WITH_GAPPS=true
 fi
 
 # set ccache
