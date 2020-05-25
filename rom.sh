@@ -16,6 +16,14 @@ function post_msg {
         -d text="$1"
 }
 
+function post_doc {
+	curl --progress-bar -F document=@"$1" "$BUILD_URL" \
+	-F chat_id="$ID"  \
+	-F "disable_web_page_preview=true" \
+	-F "parse_mode=html" \
+	-F caption="$2"
+}
+
 echo Use deafult configuration [y/n]
 read config
 
@@ -81,6 +89,7 @@ post_msg "<code>Build Started</code>"
 BUILD_START=$(date +"%s")
 
 . b*/e*
+rm -rf out/target/product/violet/Pixys*
 echo lunch pixys_violet-$buildvariant
 lunch pixys_violet-$buildvariant
 mka pixys | tee log
@@ -88,13 +97,22 @@ mka pixys | tee log
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
 
-post_msg "<code>Build Completed in $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)</code>"
+if [ -f out/target/product/violet/Pixys*.zip ]
+then	
+	post_msg "<code>Build Completed in $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)</code>"
+	
+	# Upload Build
+	post_msg "<code>Uploading build to private Gdrive</code>"
+	rclone copy out/target/product/violet/P*.zip tesla:violet/pixys/$(date +%Y%m%d)_01/
+	ls out/target/product/violet/P*.zip > tmp
+	FILE=$(sed 's/^.\{,26\}//' tmp)
+	rm tmp
+	LINK="https://downloads.tesla59.workers.dev/violet/pixys/$(date +%Y%m%d)_01/$FILE"
+	post_msg "$LINK"
 
-# Upload Build
-post_msg "<code>Uploading build to private Gdrive</code>"
-rclone copy out/target/product/violet/P*.zip tesla:violet/pixys/$(date +%Y%m%d)_01/
-ls out/target/product/violet/P*.zip > tmp
-FILE=$(sed 's/^.\{,26\}//' tmp)
-rm tmp
-LINK="https://downloads.tesla59.workers.dev/violet/pixys/$(date +%Y%m%d)_01/$FILE"
-post_msg "$LINK"
+	# Die
+	post_msg "<code>that wll be 10$. Payment only via SHITCOINs</code>"
+else
+	post_doc "log" "<code>Build Failed After ((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
+	post_msg "@tesla59  FEEX EET ASAAAP"
+fi
