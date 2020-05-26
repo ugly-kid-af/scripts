@@ -130,6 +130,8 @@ then
 	# Die
 	post_msg "<code>that wll be 10$. Payment only via Tikshla Coins</code>"
 else
-	post_doc "log" "Build Failed After $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
+	cat log | grep failed -A5 > error.log
+	rm log
+	post_doc "error.log" "Build Failed After $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
 	post_msg "@tesla59  FEEX EET ASAAAP"
 fi
