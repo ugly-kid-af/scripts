@@ -128,8 +128,8 @@ then
 	post_msg "$LINK"
 
 	# Die
-	post_msg "<code>that wll be 10$. Payment only via SHITCOINs</code>"
+	post_msg "<code>that wll be 10$. Payment only via Tikshla Coins</code>"
 else
-	post_doc "log" "<code>Build Failed After ((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
+	post_doc "log" "Build Failed After $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
 	post_msg "@tesla59  FEEX EET ASAAAP"
 fi
