@@ -25,6 +25,7 @@ function post_doc {
 }
 
 echo Use deafult configuration [y/n]
+echo Default config Clean Build, clean build, resync sources, gapps build and build with ccache
 read config
 
 if [ "$config" = "y" ]
@@ -37,12 +38,12 @@ then
 	gapps=1
 elif [ "$config" = "n" ]
 then
+	echo Sync Sources?[y/n]
+        read SYNCSOURCE
+	echo Clean device sources?[y/n]
+        read CLEANDEVICE
 	echo Clean Build?[y/n]
 	read CLEANBUILD
-	echo Clean device sources?[y/n]
-	read CLEANDEVICE
-	echo Sync Sources?[y/n]
-	read SYNCSOURCE
 	echo Build With Gapps?[y/n]
 	read gapps
 	echo Use Cache?[y/n]
@@ -53,29 +54,32 @@ fi
 
 post_msg "<code>Build Triggered For PixysOS</code>"
 
+# Sync Source
+if [ $SYNCSOURCE = 1 ] || [ $SYNCSOURCE = "y" ]
+then
+        post_msg "<code>ReSyncing Source</code>"
+        repo init -u https://github.com/PixysOS/manifest.git -b ten
+        repo sync -j$( nproc --all)
+fi
+
+# Sync Device Sources
+if [ $CLEANDEVICE = 1 ] || [ $CLEANDEVICE = "y" ]
+then
+        post_msg "<code>Cleaning Device Specific Sources</code>"
+        rm -rf device/xiaomi/violet
+        rm -rf kernel/xiaomi/sm6150
+        rm -rf vendor/xiaomi
+        post_msg "<code>Cloning Repo</code>"
+        git clone https://github.com/pixysos-devices/device_xiaomi_violet -b ten device/xiaomi/violet
+        git clone https://github.com/pixysos-devices/vendor_xiaomi_violet -b ten vendor/xiaomi/violet
+        git clone https://github.com/pixysos-devices/kernel_xiaomi_sm6150 -b ten kernel/xiaomi/sm6150 --depth=1
+fi
+
+## Clean Build
 if [ $CLEANBUILD = 1 ] || [ $CLEANBUILD = "y" ]
 then
 	post_msg "<code>Cleaning Sources</code>"
 	make clean && make clean
-fi
-
-if [ $CLEANDEVICE = 1 ] || [ $CLEANDEVICE = "y" ]
-then
-	post_msg "<code>Cleaning Device Specific Sources</code>"
-	rm -rf device/xiaomi/violet
-	rm -rf kernel/xiaomi/sm6150
-	rm -rf vendor/xiaomi
-	post_msg "<code>Cloning Repo</code>"
-	git clone https://github.com/pixysos-devices/device_xiaomi_violet -b ten device/xiaomi/violet
-	git clone https://github.com/pixysos-devices/vendor_xiaomi_violet -b ten vendor/xiaomi/violet
-	git clone https://github.com/pixysos-devices/kernel_xiaomi_sm6150 -b ten kernel/xiaomi/sm6150 --depth=1
-fi
-
-if [ $SYNCSOURCE = 1 ] || [ $SYNCSOURCE = "y" ]
-then
-	post_msg "<code>ReSyncing Source</code>"
-	repo init -u https://github.com/PixysOS/manifest.git -b ten
-	repo sync -j$( nproc --all)
 fi
 
 # GApps
