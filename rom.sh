@@ -120,11 +120,11 @@ then
 	
 	# Upload Build
 	post_msg "<code>Uploading build to private Gdrive</code>"
-	rclone copy out/target/product/violet/P*.zip tesla:violet/pixys/$(date +%Y%m%d)_01/
+	rclone copy out/target/product/violet/P*.zip tesla:violet/pixys/$(date +%Y%m%d)/
 	ls out/target/product/violet/P*.zip > tmp
 	FILE=$(sed 's/^.\{,26\}//' tmp)
 	rm tmp
-	LINK="https://downloads.tesla59.workers.dev/violet/pixys/$(date +%Y%m%d)_01/$FILE"
+	LINK="https://downloads.tesla59.workers.dev/violet/pixys/$(date +%Y%m%d)/$FILE"
 	post_msg "$LINK"
 
 	# Die
