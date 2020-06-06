@@ -35,7 +35,6 @@ then
 	SYNCSOURCE=1
 	CCACHE=1
 	buildvariant=user
-	gapps=1
 elif [ "$config" = "n" ]
 then
 	echo Sync Sources?[y/n]
@@ -44,21 +43,19 @@ then
         read CLEANDEVICE
 	echo Clean Build?[y/n]
 	read CLEANBUILD
-	echo Build With Gapps?[y/n]
-	read gapps
 	echo Use Cache?[y/n]
 	read CCACHE
 	echo Build Variant [user/userdebug/eng]
 	read buildvariant
 fi
 
-post_msg "<code>Build Triggered For PixysOS</code>"
+post_msg "<code>Build Triggered For PixelPlusUi</code>"
 
 # Sync Source
 if [ $SYNCSOURCE = 1 ] || [ $SYNCSOURCE = "y" ]
 then
         post_msg "<code>ReSyncing Source</code>"
-        repo init -u https://github.com/PixysOS/manifest.git -b ten
+        repo init -u https://github.com/PixelPlusUI/manifest -b ten
         repo sync -j$( nproc --all)
 fi
 
@@ -82,16 +79,6 @@ then
 	make clean && make clean
 fi
 
-# GApps
-if [ $gapps = 1 ] || [ "$gapps" = "y" ]
-then
-	post_msg "<code>Building with Gapps</code>"
-	export BUILD_WITH_GAPPS=true
-else
-	post_msg "<code>Building Non gapps build</code>"
-	export BUILD_WITH_GAPPS=false
-fi
-
 # set ccache
 if [ $CCACHE = 1 ] || [ $CCACHE = "y" ]
 then
@@ -106,31 +93,22 @@ post_msg "<code>Build Started</code>"
 BUILD_START=$(date +"%s")
 
 . b*/e*
-rm -rf out/target/product/violet/Pixys*
-echo lunch pixys_violet-$buildvariant
-lunch pixys_violet-$buildvariant
-mka pixys | tee log
+rm -rf out/target/product/violet/PP*
+echo lunch aosp_violet-$buildvariant
+lunch aosp_violet-$buildvariant
+mka bacon -j8 | tee log
 
 BUILD_END=$(date +"%s")
 DIFF=$((BUILD_END - BUILD_START))
 
-if [ -f out/target/product/violet/Pixys*.zip ]
+if [ -f out/target/product/violet/P*.zip ]
 then	
 	post_msg "<code>Build Completed in $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)</code>"
-	
-	# Upload Build
-	post_msg "<code>Uploading build to private Gdrive</code>"
-	rclone copy out/target/product/violet/P*.zip tesla:violet/pixys/$(date +%Y%m%d)/
-	ls out/target/product/violet/P*.zip > tmp
-	FILE=$(sed 's/^.\{,26\}//' tmp)
-	rm tmp
-	LINK="https://downloads.tesla59.workers.dev/violet/pixys/$(date +%Y%m%d)/$FILE"
-	post_msg "$LINK"
 
 	# Die
 	post_msg "<code>that wll be 10$. Payment only via Tikshla Coins</code>"
 else
 	cat log | grep -i failed -A5 > error.log
 	post_doc "error.log" "Build Failed After $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
-	post_msg "@tesla59  FEEX EET ASAAAP"
+	post_msg "@ugly_kid_69  FEEX EET ASAAAP"
 fi
